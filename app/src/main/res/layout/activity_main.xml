@@ -89,7 +89,7 @@
         android:layout_marginRight="61dp"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="Entrez votre nom..."
+        android:hint="Entrez votre nom..."
         android:textColor="#FFFFFF"
         android:textColorHint="#FFFFFF" />
 
