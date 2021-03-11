@@ -9,6 +9,7 @@
     android:background="#4A4063"
     >
 
+
     <TextView
         android:id="@+id/temperatureOK"
         android:layout_width="85dp"
