@@ -1,0 +1,7 @@
+Quel est ton prénom?
+Quel age a-tu?
+Quel est la couleur de tes cheveux?
+Quel est ton plat préféré?
+Combien mesures-tu?
+Quelle est la couleur de ton pentalon?
+Es-tu à l'aise?

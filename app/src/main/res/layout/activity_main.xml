@@ -69,6 +69,7 @@
         android:layout_marginEnd="0dp"
         android:layout_marginRight="0dp"
         android:background="#BFACC8"
+        android:fontFamily="casual"
         android:gravity="center|center_horizontal|center_vertical"
         android:text="Menteur ! Menteur !"
         android:textColor="#FFFFFF"
@@ -92,10 +93,12 @@
         android:layout_marginEnd="67dp"
         android:layout_marginRight="67dp"
         android:ems="10"
+        android:hint="Entrez votre nom..."
         android:inputType="textPersonName"
-        android:text="Entrez votre nom..."
         android:textColor="#FFFFFF"
-        android:textColorHint="#FFFFFF" />
+        android:textColorHighlight="#FFFFFF"
+        android:textColorHint="#FFFFFF"
+        android:textColorLink="#FFFFFF" />
 
     <Button
         android:id="@+id/creditsButton"
