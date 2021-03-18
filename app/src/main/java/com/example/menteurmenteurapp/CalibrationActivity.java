@@ -80,7 +80,8 @@ public class CalibrationActivity extends AppCompatActivity {
         retourMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finishActivity(MainActivity.CALIBRATION_ACTIVITY_REQUEST_CODE);
+                //finishActivity(MainActivity.CALIBRATION_ACTIVITY_REQUEST_CODE);
+                finish();
             }
         });
     }

@@ -1,19 +1,42 @@
 package com.example.menteurmenteurapp;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.DialogInterface;
+import android.app.Dialog;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button startButton, creditsButton;
+    private Button startButton, creditsButton, bluetoothDevices;
+    private TextView bluetoothOK;
+    private BluetoothAdapter bluetoothModule;
+    private Set<BluetoothDevice> pairedDeviceSet;
 
+    private static final int BT_ENABLE_REQUEST = 1;
+    private static final int SETTINGS = 20;
     public static final int CALIBRATION_ACTIVITY_REQUEST_CODE = 30;
+    public static final int BLUETOOTH_ACTIVITY_REQUEST_CODE = 31;
+    public static BluetoothDevice selectedDevice = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
 
         startButton = findViewById(R.id.startButton);
         creditsButton = findViewById(R.id.creditsButton);
+        bluetoothDevices = findViewById(R.id.bluetoothDevices);
+        bluetoothOK = findViewById(R.id.bluetoothOK);
 
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -41,15 +66,54 @@ public class MainActivity extends AppCompatActivity {
                                 "Enzo Kalinowski\n" +
                                 "Thomas Hec\n\n" +
                                 "Projet d'intégration : Objets connectés")
-
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-
-                            }
-                        })
                         .setIcon(android.R.drawable.ic_dialog_info)
                         .show();
             }
         });
+
+        connectBluetooth();
     }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        if(selectedDevice == null){
+            bluetoothOK.setText("Non connecté");
+        }
+        else{
+            bluetoothOK.setText("Connecté à " + selectedDevice.getName());
+            bluetoothOK.setTextColor(Color.GREEN);
+        }
+
+    }
+
+    public void connectBluetooth() {
+        bluetoothModule = BluetoothAdapter.getDefaultAdapter();
+        if (bluetoothModule == null) {
+            Toast.makeText(getApplicationContext(), "Votre appareil ne supporte pas le bluetooth...", Toast.LENGTH_LONG).show();
+        } else {
+            if(!bluetoothModule.isEnabled()) {
+                Toast.makeText(getApplicationContext(), "Veuillez activer votre bluetooth!", Toast.LENGTH_LONG).show();
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBtIntent, BT_ENABLE_REQUEST);
+            }
+            else{
+                Toast.makeText(getApplicationContext(), "Votre bluetooth est activé et est prêt à être appairé à l'appareil!", Toast.LENGTH_LONG).show();
+            }
+            bluetoothDevices.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(!bluetoothModule.isEnabled()){
+                        Toast.makeText(getApplicationContext(), "Veuillez activer votre bluetooth!", Toast.LENGTH_LONG).show();
+                        Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                        startActivityForResult(enableBtIntent, BT_ENABLE_REQUEST);
+                    }
+                    else{
+                        Intent calibrationActivity = new Intent(MainActivity.this, BluetoothHandler.class);
+                        startActivityForResult(calibrationActivity, BLUETOOTH_ACTIVITY_REQUEST_CODE);
+                    }
+                }
+            });
+        }
+    }
+
 }
