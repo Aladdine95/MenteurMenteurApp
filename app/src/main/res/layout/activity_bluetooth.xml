@@ -64,9 +64,9 @@
         android:layout_marginRight="0dp"
         android:background="#BFACC8"
         android:gravity="center|center_horizontal|center_vertical"
-        android:text="Calibrage des capteurs"
+        android:text="Selectionnez un appareil appairé"
         android:textColor="#FFFFFF"
-        android:textSize="36sp"
+        android:textSize="30sp"
         android:textStyle="bold"
         tools:layout_editor_absoluteX="99dp"
         tools:layout_editor_absoluteY="25dp" />
