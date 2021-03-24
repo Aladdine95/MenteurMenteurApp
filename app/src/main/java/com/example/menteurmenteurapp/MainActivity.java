@@ -50,8 +50,13 @@ public class MainActivity extends AppCompatActivity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent calibrationActivity = new Intent(MainActivity.this, CalibrationActivity.class);
-                startActivityForResult(calibrationActivity, CALIBRATION_ACTIVITY_REQUEST_CODE);
+                if(selectedDevice == null) {
+                    Toast.makeText(getApplicationContext(), "Veuillez connecter votre détecteur de mensonge avant de commencer!", Toast.LENGTH_LONG).show();
+                }
+                else{
+                    Intent calibrationActivity = new Intent(MainActivity.this, CalibrationActivity.class);
+                    startActivityForResult(calibrationActivity, CALIBRATION_ACTIVITY_REQUEST_CODE);
+                }
             }
         });
 
@@ -80,8 +85,13 @@ public class MainActivity extends AppCompatActivity {
             bluetoothOK.setText("Non connecté");
         }
         else{
-            bluetoothOK.setText("Connecté à " + selectedDevice.getName());
-            bluetoothOK.setTextColor(Color.GREEN);
+            if(BluetoothHandler.connectionWentWell) {
+                bluetoothOK.setText("Connecté à " + selectedDevice.getName());
+                bluetoothOK.setTextColor(Color.GREEN);
+            }
+            else{
+                bluetoothOK.setText("Non connecté");
+            }
         }
 
     }
