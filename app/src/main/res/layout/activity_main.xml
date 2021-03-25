@@ -7,7 +7,6 @@
     android:background="#4A4063"
     tools:context=".MainActivity">
 
-
     <TextView
         android:id="@+id/temperatureOK"
         android:layout_width="wrap_content"
