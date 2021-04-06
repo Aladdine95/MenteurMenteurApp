@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothHeadset;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.graphics.Color;
@@ -47,6 +48,11 @@ public class MainActivity extends AppCompatActivity {
         bluetoothDevices = findViewById(R.id.bluetoothDevices);
         bluetoothOK = findViewById(R.id.bluetoothOK);
 
+        if(BluetoothHandler.isBluetoothConnected()){
+            bluetoothOK.setText("Connecté");
+            bluetoothOK.setTextColor(Color.GREEN);
+        }
+
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -81,19 +87,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-        if(selectedDevice == null){
-            bluetoothOK.setText("Non connecté");
+        if(BluetoothHandler.isBluetoothConnected()){
+            bluetoothOK.setText("Connecté");
+            bluetoothOK.setTextColor(Color.GREEN);
         }
-        else{
-            if(BluetoothHandler.connectionWentWell) {
-                bluetoothOK.setText("Connecté à " + selectedDevice.getName());
-                bluetoothOK.setTextColor(Color.GREEN);
-            }
-            else{
-                bluetoothOK.setText("Non connecté");
-            }
-        }
-
     }
 
     public void connectBluetooth() {
