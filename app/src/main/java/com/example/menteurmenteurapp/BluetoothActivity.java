@@ -32,7 +32,7 @@ import java.util.Set;
 import java.util.UUID;
 import static android.content.ContentValues.TAG;
 
-public class BluetoothHandler extends AppCompatActivity {
+public class BluetoothActivity extends AppCompatActivity {
     private Button menuPrincipalButton, connectButton;
     private BluetoothAdapter bluetoothAdapter = null;
     private Set<BluetoothDevice> pairedDeviceSet;

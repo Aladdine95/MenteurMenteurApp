@@ -1,29 +1,19 @@
 package com.example.menteurmenteurapp;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothHeadset;
-import android.content.ComponentName;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         bluetoothDevices = findViewById(R.id.bluetoothDevices);
         bluetoothOK = findViewById(R.id.bluetoothOK);
 
-        if(BluetoothHandler.isBluetoothConnected()){
+        if(BluetoothActivity.isBluetoothConnected()){
             bluetoothOK.setText("Connecté");
             bluetoothOK.setTextColor(Color.GREEN);
         }
@@ -56,13 +46,13 @@ public class MainActivity extends AppCompatActivity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(selectedDevice == null) {
+                /*if(selectedDevice == null) {
                     Toast.makeText(getApplicationContext(), "Veuillez connecter votre détecteur de mensonge avant de commencer!", Toast.LENGTH_LONG).show();
                 }
-                else{
+                else{*/
                     Intent calibrationActivity = new Intent(MainActivity.this, CalibrationActivity.class);
                     startActivityForResult(calibrationActivity, CALIBRATION_ACTIVITY_REQUEST_CODE);
-                }
+               // }
             }
         });
 
@@ -87,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-        if(BluetoothHandler.isBluetoothConnected()){
+        if(BluetoothActivity.isBluetoothConnected()){
             bluetoothOK.setText("Connecté");
             bluetoothOK.setTextColor(Color.GREEN);
         }
@@ -115,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
                         startActivityForResult(enableBtIntent, BT_ENABLE_REQUEST);
                     }
                     else{
-                        Intent calibrationActivity = new Intent(MainActivity.this, BluetoothHandler.class);
+                        Intent calibrationActivity = new Intent(MainActivity.this, BluetoothActivity.class);
                         startActivityForResult(calibrationActivity, BLUETOOTH_ACTIVITY_REQUEST_CODE);
                     }
                 }

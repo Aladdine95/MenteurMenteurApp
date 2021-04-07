@@ -13,7 +13,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
-        <activity android:name=".BluetoothHandler"></activity>
+        <activity android:name=".BluetoothActivity"></activity>
         <activity android:name=".GameActivity" />
         <activity android:name=".CalibrationActivity" />
         <activity android:name=".MainActivity">
