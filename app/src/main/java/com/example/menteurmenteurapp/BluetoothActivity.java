@@ -43,7 +43,7 @@ public class BluetoothActivity extends AppCompatActivity {
     public static BluetoothSocket bluetoothSocket = null;
     public static ConnectedThread connectedThread;
     public static boolean connectionWentWell = false;
-    private final static int BUFFER_SIZE = 32;
+    private final static int BUFFER_SIZE = 150;
     public static float[] c_Pulsation;
     public static float[] c_Temperature;
     public static float[] c_Hygrometrie;
@@ -244,9 +244,9 @@ public class BluetoothActivity extends AppCompatActivity {
                         String[] splitted_buffer = readMessage.split(":"); //Le tableau contenant nos données séparées grâce au séparateur ":"
                         Log.e(ts.toString(), "MenteurAEQT: C_Pulsation = " + splitted_buffer[1] + " - C_Température = "
                                 + splitted_buffer[2] + " - C_Hygrométrie = " + splitted_buffer[3] ); //Écriture dans la console du message reçu par le arduino.
-                        add_value(c_Pulsation.length + 1, c_Pulsation, Float.parseFloat(splitted_buffer[1]));
-                        add_value(c_Temperature.length + 1, c_Temperature, Float.parseFloat(splitted_buffer[2]));
-                        add_value(c_Hygrometrie.length + 1, c_Hygrometrie, Float.parseFloat(splitted_buffer[3]));
+                        c_Pulsation = add_value(c_Pulsation.length + 1, c_Pulsation, Float.parseFloat(splitted_buffer[1]));
+                        c_Temperature = add_value(c_Temperature.length + 1, c_Temperature, Float.parseFloat(splitted_buffer[2]));
+                        c_Hygrometrie = add_value(c_Hygrometrie.length + 1, c_Hygrometrie, Float.parseFloat(splitted_buffer[3]));
                         for(int index = 0; index < c_Pulsation.length; index++){
                             System.out.println("Pulsation:" + c_Pulsation[index]);
                         }

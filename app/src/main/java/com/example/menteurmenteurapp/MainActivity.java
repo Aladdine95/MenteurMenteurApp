@@ -99,31 +99,6 @@ public class MainActivity extends AppCompatActivity {
     public void connectBluetooth() {
         bluetoothModule = BluetoothAdapter.getDefaultAdapter();
 
-        final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
-                if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                    //Device found
-                    isConnectedDevice = true;
-                }
-                else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
-            //Device is now connected
-                }
-                else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
-            //Done searching
-                }
-                else if (BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED.equals(action)) {
-            //Device is about to disconnect
-                }
-                else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
-            //Device has disconnected
-                }
-            }
-        };
-
         if (bluetoothModule == null) {
             Toast.makeText(getApplicationContext(), "Votre appareil ne supporte pas le bluetooth...", Toast.LENGTH_LONG).show();
         } else {
