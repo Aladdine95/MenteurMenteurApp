@@ -20,7 +20,7 @@ import java.util.Set;
 public class MainActivity extends AppCompatActivity {
 
     private Button startButton, creditsButton, bluetoothDevices;
-    private TextView bluetoothOK, temperatureOK, hygrometrieOK, pulsationOK;
+    public static TextView bluetoothOK, temperatureOK, hygrometrieOK, pulsationOK;
     private BluetoothAdapter bluetoothModule;
     private Set<BluetoothDevice> pairedDeviceSet;
     private boolean isConnectedDevice = false;

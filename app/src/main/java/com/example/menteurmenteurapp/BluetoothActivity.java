@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadset;
 import android.bluetooth.BluetoothSocket;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ArrayAdapter;
@@ -217,9 +218,30 @@ public class BluetoothActivity extends AppCompatActivity {
                         String[] splitted_buffer = readMessage.split(":"); //Le tableau contenant nos données séparées grâce au séparateur ":"
                         Log.e(ts.toString(), "MenteurAEQT: C_Pulsation = " + splitted_buffer[1] + " - C_Température = "
                                 + splitted_buffer[2] + " - C_Hygrométrie = " + splitted_buffer[3] ); //Écriture dans la console du message reçu par le arduino.
+
+                        MainActivity.pulsationOK.setText(splitted_buffer[1]);
+                        MainActivity.temperatureOK.setText(splitted_buffer[2]);
+                        MainActivity.hygrometrieOK.setText(splitted_buffer[3]);
+
                         c_Pulsation.add(Float.parseFloat(splitted_buffer[1]));
                         c_Temperature.add(Float.parseFloat(splitted_buffer[2]));
                         c_Hygrometrie.add(Float.parseFloat(splitted_buffer[3]));
+
+                        if(Float.parseFloat(splitted_buffer[1]) <= (float) 0.0)
+                            MainActivity.pulsationOK.setTextColor(Color.RED);
+                        else
+                            MainActivity.pulsationOK.setTextColor(Color.GREEN);
+
+                        if(Float.parseFloat(splitted_buffer[2]) <= (float) 0.0)
+                            MainActivity.temperatureOK.setTextColor(Color.RED);
+                        else
+                            MainActivity.temperatureOK.setTextColor(Color.GREEN);
+
+                        if(Float.parseFloat(splitted_buffer[3]) <= (float) 0.0)
+                            MainActivity.hygrometrieOK.setTextColor(Color.RED);
+                        else
+                            MainActivity.hygrometrieOK.setTextColor(Color.GREEN);
+
                         bytes = 0;
                     }
                     else {
