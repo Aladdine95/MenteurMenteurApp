@@ -1,5 +1,6 @@
 package com.example.menteurmenteurapp;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadset;
@@ -184,7 +185,7 @@ public class BluetoothActivity extends AppCompatActivity {
             mmOutStream = tmpOut;
         }
 
-        /**
+        /*
          *    Ajoute un flottant à un tableau donné.
          *    @param "int"
          *    @param "float[]"
@@ -193,7 +194,7 @@ public class BluetoothActivity extends AppCompatActivity {
          *    @return "float[]"
          */
 
-        /**
+        /*
          * Méthode run qui va constamment attendre les données envoyés par le module bluetooth arduino
          * grâce à un Thread qui va constamment tourner en même temps que le reste de l'application.
          *     On lit ce que l'InputStream récupère depuis la carte Arduino jusqu'à ce que le
@@ -201,6 +202,7 @@ public class BluetoothActivity extends AppCompatActivity {
          *     fonction du séparateur ":" et stocké dans un tableau qui sera ensuite concaténé
          *     aux tableaux correspondant aux capteurs de pulsation, hygrométrie et température.
          */
+        @SuppressLint("SetTextI18n")
         public void run() {
             c_Pulsation = new ArrayList<>();
             c_Temperature = new ArrayList<>();
@@ -219,13 +221,19 @@ public class BluetoothActivity extends AppCompatActivity {
                         Log.e(ts.toString(), "MenteurAEQT: C_Pulsation = " + splitted_buffer[1] + " - C_Température = "
                                 + splitted_buffer[2] + " - C_Hygrométrie = " + splitted_buffer[3] ); //Écriture dans la console du message reçu par le arduino.
 
-                        MainActivity.pulsationOK.setText(splitted_buffer[1]);
-                        MainActivity.temperatureOK.setText(splitted_buffer[2]);
-                        MainActivity.hygrometrieOK.setText(splitted_buffer[3]);
+                        MainActivity.pulsationOK.setText(splitted_buffer[1] + " BPM");
+                        MainActivity.temperatureOK.setText(splitted_buffer[2] + " °C");
+                        MainActivity.hygrometrieOK.setText(splitted_buffer[3] + " g/m3");
+
+                        CalibrationActivity.pulsationVariantes.setText(splitted_buffer[1] + " BPM");
+                        CalibrationActivity.temperatureVariantes.setText(splitted_buffer[2] + " °C");
+                        CalibrationActivity.hygrometrieVariantes.setText(splitted_buffer[3] + " g/m3");
 
                         c_Pulsation.add(Float.parseFloat(splitted_buffer[1]));
                         c_Temperature.add(Float.parseFloat(splitted_buffer[2]));
                         c_Hygrometrie.add(Float.parseFloat(splitted_buffer[3]));
+
+                        GameActivity.updateValuesGraph();
 
                         if(Float.parseFloat(splitted_buffer[1]) <= (float) 0.0)
                             MainActivity.pulsationOK.setTextColor(Color.RED);
@@ -267,7 +275,9 @@ public class BluetoothActivity extends AppCompatActivity {
             }
         }
 
-        /* Cette méthode permet de mettre fin à la connexion bluetooth depuis l'activité principale */
+        /* Cette méthode permet de mettre fin à la connexion bluetooth depuis l'activité principale
+        *  On ne l'utilise pas.
+        * */
         public void cancel() {
             try {
                 bluetoothSocket.close();
