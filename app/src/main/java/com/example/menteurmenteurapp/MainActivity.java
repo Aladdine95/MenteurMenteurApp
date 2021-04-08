@@ -26,6 +26,10 @@ public class MainActivity extends AppCompatActivity {
     public static final int BLUETOOTH_ACTIVITY_REQUEST_CODE = 31;
     public static BluetoothDevice selectedDevice = null;
 
+    public static TextView temperatureVariantes;
+    public static TextView hygrometrieVariantes;
+    public static TextView pulsationVariantes;
+
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +44,9 @@ public class MainActivity extends AppCompatActivity {
         temperatureOK = findViewById(R.id.temperatureOK);
         pulsationOK = findViewById(R.id.heartOK);
         hygrometrieOK = findViewById(R.id.hygrometerOK);
+        pulsationVariantes = findViewById(R.id.bpmView);
+        hygrometrieVariantes = findViewById(R.id.gm3View);
+        temperatureVariantes = findViewById(R.id.degresView);
 
         if(BluetoothActivity.isBluetoothConnected()){
             isConnectedDevice = true;

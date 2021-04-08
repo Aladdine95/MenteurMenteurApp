@@ -153,7 +153,7 @@ public class BluetoothActivity extends AppCompatActivity {
         }
     }
 
-    /**
+    /*
      *  La classe ConnectedThread étend la classe Thread et nous permettra
      *  de récupérer les données de nos capteurs pour traitement, grâce à
      *  la boucle permanente qui tournera en même temps des autres processus
@@ -225,9 +225,9 @@ public class BluetoothActivity extends AppCompatActivity {
                         MainActivity.temperatureOK.setText(splitted_buffer[2] + " °C");
                         MainActivity.hygrometrieOK.setText(splitted_buffer[3] + " g/m3");
 
-                        CalibrationActivity.pulsationVariantes.setText(splitted_buffer[1] + " BPM");
-                        CalibrationActivity.temperatureVariantes.setText(splitted_buffer[2] + " °C");
-                        CalibrationActivity.hygrometrieVariantes.setText(splitted_buffer[3] + " g/m3");
+                        /*MainActivity.pulsationVariantes.setText(splitted_buffer[1]);
+                        MainActivity.temperatureVariantes.setText(splitted_buffer[2]);
+                        MainActivity.hygrometrieVariantes.setText(splitted_buffer[3]);*/
 
                         c_Pulsation.add(Float.parseFloat(splitted_buffer[1]));
                         c_Temperature.add(Float.parseFloat(splitted_buffer[2]));

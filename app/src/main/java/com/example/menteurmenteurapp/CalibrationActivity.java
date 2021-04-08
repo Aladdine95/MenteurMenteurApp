@@ -24,8 +24,9 @@ public class CalibrationActivity extends AppCompatActivity {
     private int indexQuestion;
     private boolean startQuestion;
 
-    @SuppressLint("StaticFieldLeak")
-    public static TextView temperatureVariantes, hygrometrieVariantes, pulsationVariantes;
+    public TextView temperatureVariantes;
+    public TextView hygrometrieVariantes;
+    public TextView pulsationVariantes;
     public static final int GAME_ACTIVITY_REQUEST_CODE = 35;
 
     @SuppressLint("SetTextI18n")
