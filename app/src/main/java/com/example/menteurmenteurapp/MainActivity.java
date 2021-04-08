@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -18,9 +20,10 @@ import java.util.Set;
 public class MainActivity extends AppCompatActivity {
 
     private Button startButton, creditsButton, bluetoothDevices;
-    private TextView bluetoothOK;
+    private TextView bluetoothOK, temperatureOK, hygrometrieOK, pulsationOK;
     private BluetoothAdapter bluetoothModule;
     private Set<BluetoothDevice> pairedDeviceSet;
+    private boolean isConnectedDevice = false;
 
     private static final int BT_ENABLE_REQUEST = 1;
     private static final int SETTINGS = 20;
@@ -37,8 +40,12 @@ public class MainActivity extends AppCompatActivity {
         creditsButton = findViewById(R.id.creditsButton);
         bluetoothDevices = findViewById(R.id.bluetoothDevices);
         bluetoothOK = findViewById(R.id.bluetoothOK);
+        temperatureOK = findViewById(R.id.temperatureOK);
+        pulsationOK = findViewById(R.id.heartOK);
+        hygrometrieOK = findViewById(R.id.hygrometerOK);
 
         if(BluetoothActivity.isBluetoothConnected()){
+            isConnectedDevice = true;
             bluetoothOK.setText("Connecté");
             bluetoothOK.setTextColor(Color.GREEN);
         }
@@ -46,13 +53,13 @@ public class MainActivity extends AppCompatActivity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*if(selectedDevice == null) {
+                if(isConnectedDevice == false) {
                     Toast.makeText(getApplicationContext(), "Veuillez connecter votre détecteur de mensonge avant de commencer!", Toast.LENGTH_LONG).show();
                 }
-                else{*/
+                else{
                     Intent calibrationActivity = new Intent(MainActivity.this, CalibrationActivity.class);
                     startActivityForResult(calibrationActivity, CALIBRATION_ACTIVITY_REQUEST_CODE);
-               // }
+                }
             }
         });
 
@@ -78,13 +85,45 @@ public class MainActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         if(BluetoothActivity.isBluetoothConnected()){
+            isConnectedDevice = true;
             bluetoothOK.setText("Connecté");
             bluetoothOK.setTextColor(Color.GREEN);
+        }
+        else{
+            isConnectedDevice = false;
+            bluetoothOK.setText("Non connecté");
+            bluetoothOK.setTextColor(Color.RED);
         }
     }
 
     public void connectBluetooth() {
         bluetoothModule = BluetoothAdapter.getDefaultAdapter();
+
+        final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+
+                if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                    //Device found
+                    isConnectedDevice = true;
+                }
+                else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
+            //Device is now connected
+                }
+                else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+            //Done searching
+                }
+                else if (BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED.equals(action)) {
+            //Device is about to disconnect
+                }
+                else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
+            //Device has disconnected
+                }
+            }
+        };
+
         if (bluetoothModule == null) {
             Toast.makeText(getApplicationContext(), "Votre appareil ne supporte pas le bluetooth...", Toast.LENGTH_LONG).show();
         } else {

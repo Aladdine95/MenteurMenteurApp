@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -24,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,11 +41,12 @@ public class BluetoothActivity extends AppCompatActivity {
     private int mBufferSize = 50000; //Default
 
     public static BluetoothSocket bluetoothSocket = null;
-    public static Handler handler;
     public static ConnectedThread connectedThread;
     public static boolean connectionWentWell = false;
-    private final static int CONNECTING_STATUS = 1; // used in bluetooth handler to identify message status
-    private final static int MESSAGE_READ = 2; // used in bluetooth handler to identify message update
+    private final static int BUFFER_SIZE = 32;
+    public static float[] c_Pulsation;
+    public static float[] c_Temperature;
+    public static float[] c_Hygrometrie;
 
     private UUID mDeviceUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
@@ -127,6 +128,11 @@ public class BluetoothActivity extends AppCompatActivity {
                 && mBluetoothAdapter.getProfileConnectionState(BluetoothHeadset.HEADSET) == BluetoothHeadset.STATE_CONNECTED ;
     }
 
+    /*  La classe CreateConnexion étend la classe Thread et nous permettra
+     *  d'effectuer la connexion avec les appareils déjà appairés avec le
+     *  téléphone pour permettre l'échange de données par l'intermédiaire de
+     *  la connexion bluetooth.
+     */
     private static class CreateConnection extends Thread{
 
         public CreateConnection(BluetoothAdapter bluetoothAdapter, String address){
@@ -138,7 +144,7 @@ public class BluetoothActivity extends AppCompatActivity {
                 bluetoothSocketTMP = bluetoothDevice.createInsecureRfcommSocketToServiceRecord(mLieDeviceUUID);
             }
             catch(IOException e){
-                Log.e(TAG, "Socket's create() method failed", e);
+                Log.e(TAG, "Échec de la création du socket de connexion (méthode socket()).", e);
             }
 
             bluetoothSocket = bluetoothSocketTMP;
@@ -147,23 +153,20 @@ public class BluetoothActivity extends AppCompatActivity {
         public void run(){
             BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
             bluetoothAdapter.cancelDiscovery();
-            System.out.println("ENTERED");
             try {
-                // Connect to the remote device through the socket. This call blocks
-                // until it succeeds or throws an exception.
+                // On connecte notre appareil à travers la socket de connexion jusqu'à
+                // ce qu'elle réussise ou rejette une exception.
                 bluetoothSocket.connect();
-                Log.e("Status", "Device connected");
+                Log.e("Status", "Appareil connecté au bluetooth");
                 connectionWentWell = true;
-                //handler.obtainMessage(CONNECTING_STATUS, 1, -1).sendToTarget();
             } catch (IOException connectException) {
-                // Unable to connect; close the socket and return.
+                // Impossible de se connecter, fermeture du socket et retour.
                 try {
                     bluetoothSocket.close();
-                    Log.e("Status", "Cannot connect to device");
+                    Log.e("Status", "Impossible de connecter l'appareil au bluetooth.");
                     connectionWentWell = false;
-                    //handler.obtainMessage(CONNECTING_STATUS, -1, -1).sendToTarget();
                 } catch (IOException closeException) {
-                    Log.e(TAG, "Could not close the client socket", closeException);
+                    Log.e(TAG, "Problème lors de la fermeture de la socket client.", closeException);
                     connectionWentWell = false;
                 }
                 return;
@@ -173,6 +176,13 @@ public class BluetoothActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     *  La classe ConnectedThread étend la classe Thread et nous permettra
+     *  de récupérer les données de nos capteurs pour traitement, grâce à
+     *  la boucle permanente qui tournera en même temps des autres processus
+     *  de notre simulation.
+     *
+     */
     public static class ConnectedThread extends Thread {
         private final BluetoothSocket bluetoothSocket;
         private final InputStream mmInStream;
@@ -183,8 +193,10 @@ public class BluetoothActivity extends AppCompatActivity {
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
 
-            // Get the input and output streams, using temp objects because
-            // member streams are final
+            /*  On récupère l'InputStream et l'OutputStream grâce à des objets temporaires
+                pour permettre de les rendre finaux que si aucune exception ne s'est déclenchée.
+                Des variables permanentes récupèront ensuite l'état actuel des streamers.
+             */
             try {
                 tmpIn = socket.getInputStream();
                 tmpOut = socket.getOutputStream();
@@ -194,24 +206,59 @@ public class BluetoothActivity extends AppCompatActivity {
             mmOutStream = tmpOut;
         }
 
+        /**
+         *    Ajoute un flottant à un tableau donné.
+         *    @param "int"
+         *    @param "float[]"
+         *    @param "float"
+         *
+         *    @return "float[]"
+         */
+        public float[] add_value(int n, float[] array, float element){
+            float new_array[] = new float[n + 1];
+
+            new_array[n] = element;
+
+            return new_array;
+        }
+
+        /**
+         * Méthode run qui va constamment attendre les données envoyés par le module bluetooth arduino
+         * grâce à un Thread qui va constamment tourner en même temps que le reste de l'application.
+         *     On lit ce que l'InputStream récupère depuis la carte Arduino jusqu'à ce que le
+         *     caractère terminal soit atteint. La chaîne de caractère sera ensuite découpée en
+         *     fonction du séparateur ":" et stocké dans un tableau qui sera ensuite concaténé
+         *     aux tableaux correspondant aux capteurs de pulsation, hygrométrie et température.
+         */
         public void run() {
-            byte[] buffer = new byte[1024];  // buffer store for the stream
-            int bytes = 0; // bytes returned from read()
-            // Keep listening to the InputStream until an exception occurs
+            byte[] buffer = new byte[BUFFER_SIZE];  //Stockage du buffer récupéré dans le stream
+            int bytes = 0; // Le nombre de bytes retournées par la méthode read()
+            Timestamp ts = new Timestamp(System.currentTimeMillis());
+            // Continue d'écouter l'InputStream jusqu'à ce qu'une exception se produise
             while (true) {
                 try {
-                    /*
-                    Read from the InputStream from Arduino until termination character is reached.
-                    Then send the whole String message to GUI Handler.
-                     */
                     buffer[bytes] = (byte) mmInStream.read();
-                    String readMessage;
+                    String readMessage; //Chaque ligne reçu seront stockés dans readMessage
                     if (buffer[bytes] == '\n'){
                         readMessage = new String(buffer,0,bytes);
-                        Log.e("Arduino Message",readMessage);
-                        handler.obtainMessage(MESSAGE_READ,readMessage).sendToTarget();
+                        String[] splitted_buffer = readMessage.split(":"); //Le tableau contenant nos données séparées grâce au séparateur ":"
+                        Log.e(ts.toString(), "MenteurAEQT: C_Pulsation = " + splitted_buffer[1] + " - C_Température = "
+                                + splitted_buffer[2] + " - C_Hygrométrie = " + splitted_buffer[3] ); //Écriture dans la console du message reçu par le arduino.
+                        add_value(c_Pulsation.length + 1, c_Pulsation, Float.parseFloat(splitted_buffer[1]));
+                        add_value(c_Temperature.length + 1, c_Temperature, Float.parseFloat(splitted_buffer[2]));
+                        add_value(c_Hygrometrie.length + 1, c_Hygrometrie, Float.parseFloat(splitted_buffer[3]));
+                        for(int index = 0; index < c_Pulsation.length; index++){
+                            System.out.println("Pulsation:" + c_Pulsation[index]);
+                        }
+                        for(int index = 0; index < c_Temperature.length; index++){
+                            System.out.println("Temperature:" + c_Temperature[index]);
+                        }
+                        for(int index = 0; index < c_Hygrometrie.length; index++){
+                            System.out.println("Hygrometrie:" + c_Hygrometrie[index]);
+                        }
                         bytes = 0;
-                    } else {
+                    }
+                    else {
                         bytes++;
                     }
                 } catch (IOException e) {
@@ -221,17 +268,20 @@ public class BluetoothActivity extends AppCompatActivity {
             }
         }
 
-        /* Call this from the main activity to send data to the remote device */
+        /*
+        *  Cette méthode permet l'envoie d'un buffer de données à la carte arduino
+        *  On ne l'utilise pas.
+        */
         public void write(String input) {
             byte[] bytes = input.getBytes(); //converts entered String into bytes
             try {
                 mmOutStream.write(bytes);
             } catch (IOException e) {
-                Log.e("Send Error","Unable to send message",e);
+                Log.e("Application:","Impossible d'envoyer un message.",e);
             }
         }
 
-        /* Call this from the main activity to shutdown the connection */
+        /* Cette méthode permet de mettre fin à la connexion bluetooth depuis l'activité principale */
         public void cancel() {
             try {
                 bluetoothSocket.close();
