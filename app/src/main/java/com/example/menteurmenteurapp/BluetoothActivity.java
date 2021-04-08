@@ -4,14 +4,8 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadset;
 import android.bluetooth.BluetoothSocket;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -33,88 +27,69 @@ import java.util.UUID;
 import static android.content.ContentValues.TAG;
 
 public class BluetoothActivity extends AppCompatActivity {
-    private Button menuPrincipalButton, connectButton;
     private BluetoothAdapter bluetoothAdapter = null;
-    private Set<BluetoothDevice> pairedDeviceSet;
     private ListView lview = null;
     private Map<String, BluetoothDevice> map = null;
-    private int mBufferSize = 50000; //Default
 
     public static BluetoothSocket bluetoothSocket = null;
     public static ConnectedThread connectedThread;
     public static boolean connectionWentWell = false;
     private final static int BUFFER_SIZE = 150;
-    public static float[] c_Pulsation;
-    public static float[] c_Temperature;
-    public static float[] c_Hygrometrie;
-
-    private UUID mDeviceUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-
+    public static List<Float> c_Pulsation;
+    public static List<Float> c_Temperature;
+    public static List<Float> c_Hygrometrie;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth);
 
-        menuPrincipalButton = findViewById(R.id.menuPrincipalButton);
-        connectButton = findViewById(R.id.connectButton);
+        Button menuPrincipalButton = findViewById(R.id.menuPrincipalButton);
+        Button connectButton = findViewById(R.id.connectButton);
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         pairedDevicesList();
-        menuPrincipalButton.setOnClickListener(new View.OnClickListener(){
+        menuPrincipalButton.setOnClickListener(v -> finish());
 
-            @Override
-            public void onClick(View v) {
-                finish();
+        connectButton.setOnClickListener(v -> {
+            if(MainActivity.selectedDevice == null){
+                Toast.makeText(getApplicationContext(), "Aucun appareil n'a été sélectionné.", Toast.LENGTH_LONG).show();
             }
-        });
-
-        connectButton.setOnClickListener(new View.OnClickListener(){
-
-            @Override
-            public void onClick(View v) {
-                if(MainActivity.selectedDevice == null){
-                    Toast.makeText(getApplicationContext(), "Aucun appareil n'a été sélectionné.", Toast.LENGTH_LONG).show();
+            else{
+                CreateConnection cc = new CreateConnection(bluetoothAdapter, MainActivity.selectedDevice.getAddress());
+                cc.start();
+                if(connectionWentWell) {
+                    Toast.makeText(getApplicationContext(), "'" + MainActivity.selectedDevice.getName() + "' a été sélectionné.", Toast.LENGTH_LONG).show();
+                    finish();
                 }
                 else{
-                    CreateConnection cc = new CreateConnection(bluetoothAdapter, MainActivity.selectedDevice.getAddress());
-                    cc.start();
-                    if(connectionWentWell) {
-                        Toast.makeText(getApplicationContext(), "'" + MainActivity.selectedDevice.getName() + "' a été sélectionné.", Toast.LENGTH_LONG).show();
-                        finish();
-                    }
-                    else{
-                        Toast.makeText(getApplicationContext(), "Connexion avec '" + MainActivity.selectedDevice.getName() + "' n'a pas été établie," +
-                                "veuillez réessayer... ", Toast.LENGTH_LONG).show();
-                    }
+                    Toast.makeText(getApplicationContext(), "Connexion avec '" + MainActivity.selectedDevice.getName() + "' n'a pas été établie," +
+                            "veuillez réessayer... ", Toast.LENGTH_LONG).show();
                 }
             }
         });
     }
 
     private void pairedDevicesList(){
-        lview = (ListView) findViewById(R.id.appareilBluetoothList);
-        pairedDeviceSet = bluetoothAdapter.getBondedDevices();
-        map = new HashMap<String, BluetoothDevice>();
-        List list = new ArrayList();
+        lview = findViewById(R.id.appareilBluetoothList);
+        Set<BluetoothDevice> pairedDeviceSet = bluetoothAdapter.getBondedDevices();
+        map = new HashMap<>();
+        List<String> list = new ArrayList<>();
 
         if (pairedDeviceSet.size() > 0) {
             for (BluetoothDevice pairedDevice : pairedDeviceSet) {
                 map.put(pairedDevice.getAddress(), pairedDevice); //Get the device's name and the address
                 list.add(pairedDevice.getName() + "\n" + pairedDevice.getAddress());
             }
-            final ArrayAdapter adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list);
+            final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
             lview.setAdapter(adapter);
-            lview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    String info = ((TextView) view).getText().toString();
-                    String address = info.substring(info.length() - 17);
+            lview.setOnItemClickListener((parent, view, position, id) -> {
+                String info = ((TextView) view).getText().toString();
+                String address = info.substring(info.length() - 17);
 
-                    MainActivity.selectedDevice = map.get(address);
+                MainActivity.selectedDevice = map.get(address);
 
-                    lview.setItemChecked(position, true);
-                    Toast.makeText(getApplicationContext(), info, Toast.LENGTH_SHORT).show();
-                }
+                lview.setItemChecked(position, true);
+                Toast.makeText(getApplicationContext(), info, Toast.LENGTH_SHORT).show();
             });
         }
         else {
@@ -200,7 +175,9 @@ public class BluetoothActivity extends AppCompatActivity {
             try {
                 tmpIn = socket.getInputStream();
                 tmpOut = socket.getOutputStream();
-            } catch (IOException e) { }
+            } catch (IOException e) {
+                e.getMessage();
+            }
 
             mmInStream = tmpIn;
             mmOutStream = tmpOut;
@@ -214,13 +191,6 @@ public class BluetoothActivity extends AppCompatActivity {
          *
          *    @return "float[]"
          */
-        public float[] add_value(int n, float[] array, float element){
-            float new_array[] = new float[n + 1];
-
-            new_array[n] = element;
-
-            return new_array;
-        }
 
         /**
          * Méthode run qui va constamment attendre les données envoyés par le module bluetooth arduino
@@ -231,6 +201,9 @@ public class BluetoothActivity extends AppCompatActivity {
          *     aux tableaux correspondant aux capteurs de pulsation, hygrométrie et température.
          */
         public void run() {
+            c_Pulsation = new ArrayList<>();
+            c_Temperature = new ArrayList<>();
+            c_Hygrometrie = new ArrayList<>();
             byte[] buffer = new byte[BUFFER_SIZE];  //Stockage du buffer récupéré dans le stream
             int bytes = 0; // Le nombre de bytes retournées par la méthode read()
             Timestamp ts = new Timestamp(System.currentTimeMillis());
@@ -244,18 +217,9 @@ public class BluetoothActivity extends AppCompatActivity {
                         String[] splitted_buffer = readMessage.split(":"); //Le tableau contenant nos données séparées grâce au séparateur ":"
                         Log.e(ts.toString(), "MenteurAEQT: C_Pulsation = " + splitted_buffer[1] + " - C_Température = "
                                 + splitted_buffer[2] + " - C_Hygrométrie = " + splitted_buffer[3] ); //Écriture dans la console du message reçu par le arduino.
-                        c_Pulsation = add_value(c_Pulsation.length + 1, c_Pulsation, Float.parseFloat(splitted_buffer[1]));
-                        c_Temperature = add_value(c_Temperature.length + 1, c_Temperature, Float.parseFloat(splitted_buffer[2]));
-                        c_Hygrometrie = add_value(c_Hygrometrie.length + 1, c_Hygrometrie, Float.parseFloat(splitted_buffer[3]));
-                        for(int index = 0; index < c_Pulsation.length; index++){
-                            System.out.println("Pulsation:" + c_Pulsation[index]);
-                        }
-                        for(int index = 0; index < c_Temperature.length; index++){
-                            System.out.println("Temperature:" + c_Temperature[index]);
-                        }
-                        for(int index = 0; index < c_Hygrometrie.length; index++){
-                            System.out.println("Hygrometrie:" + c_Hygrometrie[index]);
-                        }
+                        c_Pulsation.add(Float.parseFloat(splitted_buffer[1]));
+                        c_Temperature.add(Float.parseFloat(splitted_buffer[2]));
+                        c_Hygrometrie.add(Float.parseFloat(splitted_buffer[3]));
                         bytes = 0;
                     }
                     else {
@@ -285,7 +249,9 @@ public class BluetoothActivity extends AppCompatActivity {
         public void cancel() {
             try {
                 bluetoothSocket.close();
-            } catch (IOException e) { }
+            } catch (IOException e) {
+                e.getMessage();
+            }
         }
     }
 }
