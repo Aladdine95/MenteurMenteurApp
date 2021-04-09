@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int BLUETOOTH_ACTIVITY_REQUEST_CODE = 31;
     public static BluetoothDevice selectedDevice = null;
 
+    public static long timestamp_start = System.currentTimeMillis();
     public static TextView temperatureVariantes;
     public static TextView hygrometrieVariantes;
     public static TextView pulsationVariantes;

@@ -2,9 +2,11 @@ package com.example.menteurmenteurapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
@@ -15,13 +17,22 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.menteurmenteurapp.CalibrationActivity.c_pulsation_m;
+
 public class GameActivity extends AppCompatActivity{
     private LineChart mpLineChart = null;
+    private final static int ECART_PULSATION = 10;
+    private final static int ECART_TEMPERATURE = 1;
+    private final static int ECART_HYGROMETRIE = 2;
+    private TextView true_or_falseView, ledView, tsView;
     private Thread thread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        tsView = findViewById(R.id.temps1View);
+        ledView = findViewById(R.id.ledView);
+        true_or_falseView = findViewById(R.id.trueorfalseView);
         setContentView(R.layout.activity_game);
         mpLineChart = findViewById(R.id.line_chart);
         LineDataSet lineDataSetP = new LineDataSet(dataValuesPulsation(), "BPM");
@@ -106,6 +117,7 @@ public class GameActivity extends AppCompatActivity{
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private void startRefresh(){
         if(thread != null){
             thread.interrupt();
@@ -115,6 +127,7 @@ public class GameActivity extends AppCompatActivity{
 
             while(true){
                 updateValuesGraph(mpLineChart);
+                runOnUiThread(this::mensongeTraitement);
                 try {
                     Thread.sleep(200);
                 } catch (InterruptedException e) {
@@ -125,4 +138,34 @@ public class GameActivity extends AppCompatActivity{
         thread.start();
     }
 
+    @SuppressLint("SetTextI18n")
+    private void mensongeTraitement() {
+        if((derniereValeurCapteur(BluetoothActivity.c_Temperature) < CalibrationActivity.c_temperature_m - ECART_TEMPERATURE
+                && derniereValeurCapteur(BluetoothActivity.c_Temperature) > CalibrationActivity.c_temperature_m + ECART_TEMPERATURE)
+        && (derniereValeurCapteur(BluetoothActivity.c_Pulsation) < CalibrationActivity.c_pulsation_m - ECART_PULSATION
+                && derniereValeurCapteur(BluetoothActivity.c_Pulsation) > CalibrationActivity.c_pulsation_m + ECART_PULSATION)
+        && (derniereValeurCapteur(BluetoothActivity.c_Hygrometrie) < CalibrationActivity.c_hygrometrie_m - ECART_HYGROMETRIE
+                && derniereValeurCapteur(BluetoothActivity.c_Hygrometrie) > CalibrationActivity.c_hygrometrie_m + ECART_HYGROMETRIE)){
+            true_or_falseView.setText("MENTEUR !");
+            true_or_falseView.setBackgroundColor(Color.RED);
+            ledView.setBackgroundColor(Color.RED);
+            tsView.setText("" + (MainActivity.timestamp_start - System.currentTimeMillis()));
+            if(BluetoothActivity.c_Pulsation != null && BluetoothActivity.c_Temperature != null
+                    && BluetoothActivity.c_Hygrometrie != null) {
+                BluetoothActivity.c_Temperature.clear();
+                BluetoothActivity.c_Hygrometrie.clear();
+                BluetoothActivity.c_Pulsation.clear();
+            }
+        }
+        else{
+            true_or_falseView.setText("Stand by...");
+            true_or_falseView.setBackgroundColor(Color.GREEN);
+            ledView.setBackgroundColor(Color.GREEN);
+            tsView.setText("" + (MainActivity.timestamp_start - System.currentTimeMillis()));
+        }
+    }
+
+    private Float derniereValeurCapteur(List<Float> liste){
+        return liste.get(liste.size() - 1);
+    }
 }

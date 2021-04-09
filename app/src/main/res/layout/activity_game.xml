@@ -57,20 +57,6 @@
         android:textColorHint="#FAF6F6"
         android:textColorLink="#FAF8F8" />
 
-    <Switch
-        android:id="@+id/indicateur"
-        android:layout_width="wrap_content"
-        android:layout_height="45dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="false"
-        android:layout_marginStart="345dp"
-        android:layout_marginTop="530dp"
-        android:clickable="true"
-        android:gravity="center|center_horizontal|center_vertical"
-        android:scaleX="1.5"
-        android:scaleY="1.5" />
-
     <TextView
         android:id="@+id/temps1View"
         android:layout_width="wrap_content"
@@ -173,5 +159,16 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="17dp"
         android:layout_marginEnd="8dp" />
+
+    <TextView
+        android:id="@+id/ledView"
+        android:layout_width="wrap_content"
+        android:layout_height="88dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="345dp"
+        android:layout_marginTop="509dp"
+        android:background="#43A047"
+        android:text="               " />
 
 </RelativeLayout>
