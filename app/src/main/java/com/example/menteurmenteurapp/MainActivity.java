@@ -26,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
     public static final int BLUETOOTH_ACTIVITY_REQUEST_CODE = 31;
     public static BluetoothDevice selectedDevice = null;
 
-    public static long timestamp_start = System.currentTimeMillis();
     public static TextView temperatureVariantes;
     public static TextView hygrometrieVariantes;
     public static TextView pulsationVariantes;
@@ -49,14 +48,17 @@ public class MainActivity extends AppCompatActivity {
         hygrometrieVariantes = findViewById(R.id.gm3View);
         temperatureVariantes = findViewById(R.id.degresView);
 
-        if(BluetoothActivity.isBluetoothConnected()){
+        if(BluetoothActivity.splitted_buffer != null){
             isConnectedDevice = true;
             bluetoothOK.setText("Connecté");
             bluetoothOK.setTextColor(Color.GREEN);
         }
 
+        bluetoothModule = BluetoothAdapter.getDefaultAdapter();
+
         startButton.setOnClickListener(v -> {
-            if(BluetoothActivity.isBluetoothConnected()) {
+            System.out.println(isConnectedDevice);
+            if(!isConnectedDevice) {
                 Toast.makeText(getApplicationContext(), "Veuillez connecter votre détecteur de mensonge avant de commencer!", Toast.LENGTH_LONG).show();
             }
             else{
@@ -83,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("SetTextI18n")
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-        if(BluetoothActivity.isBluetoothConnected()){
+        if(BluetoothActivity.splitted_buffer != null){
             isConnectedDevice = true;
             bluetoothOK.setText("Connecté");
             bluetoothOK.setTextColor(Color.GREEN);

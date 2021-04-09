@@ -40,7 +40,7 @@ public class BluetoothActivity extends AppCompatActivity {
     public static List<Float> c_Pulsation;
     public static List<Float> c_Temperature;
     public static List<Float> c_Hygrometrie;
-
+    public static String[] splitted_buffer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -217,17 +217,13 @@ public class BluetoothActivity extends AppCompatActivity {
                     String readMessage; //Chaque ligne reçu seront stockés dans readMessage
                     if (buffer[bytes] == '\n'){
                         readMessage = new String(buffer,0,bytes);
-                        String[] splitted_buffer = readMessage.split(":"); //Le tableau contenant nos données séparées grâce au séparateur ":"
+                        splitted_buffer = readMessage.split(":"); //Le tableau contenant nos données séparées grâce au séparateur ":"
                         Log.e(ts.toString(), "MenteurAEQT: C_Pulsation = " + splitted_buffer[1] + " - C_Température = "
                                 + splitted_buffer[2] + " - C_Hygrométrie = " + splitted_buffer[3] ); //Écriture dans la console du message reçu par le arduino.
 
                         MainActivity.pulsationOK.setText(splitted_buffer[1] + " BPM");
                         MainActivity.temperatureOK.setText(splitted_buffer[2] + " °C");
                         MainActivity.hygrometrieOK.setText(splitted_buffer[3] + " g/m3");
-
-                        /*MainActivity.pulsationVariantes.setText(splitted_buffer[1]);
-                        MainActivity.temperatureVariantes.setText(splitted_buffer[2]);
-                        MainActivity.hygrometrieVariantes.setText(splitted_buffer[3]);*/
 
                         c_Pulsation.add(Float.parseFloat(splitted_buffer[1]));
                         c_Temperature.add(Float.parseFloat(splitted_buffer[2]));
