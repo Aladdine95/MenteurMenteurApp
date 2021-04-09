@@ -233,8 +233,6 @@ public class BluetoothActivity extends AppCompatActivity {
                         c_Temperature.add(Float.parseFloat(splitted_buffer[2]));
                         c_Hygrometrie.add(Float.parseFloat(splitted_buffer[3]));
 
-                        GameActivity.updateValuesGraph();
-
                         if(Float.parseFloat(splitted_buffer[1]) <= (float) 0.0)
                             MainActivity.pulsationOK.setTextColor(Color.RED);
                         else

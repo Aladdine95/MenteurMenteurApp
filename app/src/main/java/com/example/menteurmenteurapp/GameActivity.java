@@ -2,8 +2,12 @@ package com.example.menteurmenteurapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
@@ -11,11 +15,15 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
-public class GameActivity extends AppCompatActivity {
-    private static LineChart mpLineChart = null;
+import static android.content.ContentValues.TAG;
+
+public class GameActivity extends AppCompatActivity{
+    private LineChart mpLineChart = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +47,9 @@ public class GameActivity extends AppCompatActivity {
         mpLineChart.setData(data);
         mpLineChart.invalidate();
         mpLineChart.setBackgroundColor(Color.WHITE);
+
+        RefreshCharts rCharts = new GameActivity.RefreshCharts(mpLineChart);
+        rCharts.run();
     }
 
     private static List<Entry> dataValuesPulsation(){
@@ -71,7 +82,7 @@ public class GameActivity extends AppCompatActivity {
         return dataValues;
     }
 
-    public static void updateValuesGraph(){
+    public static void updateValuesGraph(LineChart mpLineChart){
         LineDataSet lineDataSetP = new LineDataSet(dataValuesPulsation(), "BPM");
         lineDataSetP.setColor(Color.BLUE);
         lineDataSetP.setCircleColor(Color.BLUE);
@@ -88,5 +99,17 @@ public class GameActivity extends AppCompatActivity {
         LineData data = new LineData(dataSets);
         mpLineChart.setData(data);
         mpLineChart.invalidate();
+    }
+
+    private static class RefreshCharts extends Thread{
+        private LineChart mpLineChart = null;
+
+        public RefreshCharts(LineChart mpLineChart){
+            this.mpLineChart = mpLineChart;
+        }
+
+        public void run(){
+            updateValuesGraph(mpLineChart);
+        }
     }
 }
