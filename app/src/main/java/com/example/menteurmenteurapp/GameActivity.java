@@ -121,6 +121,7 @@ public class GameActivity extends AppCompatActivity{
         }
 
         thread = new Thread(() -> {
+
             while(true){
                 updateValuesGraph(mpLineChart);
                 try {

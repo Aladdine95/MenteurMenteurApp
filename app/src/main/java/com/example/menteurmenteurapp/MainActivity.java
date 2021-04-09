@@ -105,9 +105,6 @@ public class MainActivity extends AppCompatActivity {
                 Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 startActivityForResult(enableBtIntent, BT_ENABLE_REQUEST);
             }
-            else{
-                Toast.makeText(getApplicationContext(), "Votre bluetooth est activé et est prêt à être appairé à l'appareil!", Toast.LENGTH_LONG).show();
-            }
             bluetoothDevices.setOnClickListener(v -> {
                 if(!bluetoothModule.isEnabled()){
                     Toast.makeText(getApplicationContext(), "Veuillez activer votre bluetooth!", Toast.LENGTH_LONG).show();
