@@ -25,9 +25,9 @@ public class CalibrationActivity extends AppCompatActivity {
     private int indexQuestion;
     private boolean startQuestion, calibrationStart, calibrationDone, cleared;
     private Thread thread;
-    private TextView temperatureVariantes;
-    private TextView hygrometrieVariantes;
-    private TextView pulsationVariantes;
+    public static TextView temperatureVariantes;
+    public static TextView hygrometrieVariantes;
+    public static TextView pulsationVariantes;
 
     public static float c_pulsation_m, c_temperature_m, c_hygrometrie_m;
     public static final int GAME_ACTIVITY_REQUEST_CODE = 35;
@@ -128,15 +128,22 @@ public class CalibrationActivity extends AppCompatActivity {
 
         thread = new Thread(() -> {
             while(calibrationStart){
+
                 if(calibrationStart && !cleared){
                     cleared = true;
-                    BluetoothActivity.c_Pulsation.clear();
-                    BluetoothActivity.c_Temperature.clear();
-                    BluetoothActivity.c_Hygrometrie.clear();
+                    //BluetoothActivity.c_Pulsation.clear();
+                    //luetoothActivity.c_Temperature.clear();
+                    //BluetoothActivity.c_Hygrometrie.clear();
                 }
-                temperatureVariantes.setText(BluetoothActivity.c_Temperature.get(BluetoothActivity.c_Temperature.size() - 1).toString() + " °C");
-                hygrometrieVariantes.setText(BluetoothActivity.c_Hygrometrie.get(BluetoothActivity.c_Hygrometrie.size() - 1).toString() + " g/m3");
-                pulsationVariantes.setText(BluetoothActivity.c_Pulsation.get(BluetoothActivity.c_Pulsation.size() - 1).toString() + "BPM");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        temperatureVariantes.setText(BluetoothActivity.c_Temperature.get(BluetoothActivity.c_Temperature.size() - 1).toString() + " °C");
+                        hygrometrieVariantes.setText(BluetoothActivity.c_Hygrometrie.get(BluetoothActivity.c_Hygrometrie.size() - 1).toString() + " g/m3");
+                        pulsationVariantes.setText(BluetoothActivity.c_Pulsation.get(BluetoothActivity.c_Pulsation.size() - 1).toString() + "BPM");
+                    }
+                });
+
 
                 try {
                     Thread.sleep(500);
