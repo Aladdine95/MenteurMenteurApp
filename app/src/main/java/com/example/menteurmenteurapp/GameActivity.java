@@ -155,12 +155,15 @@ public class GameActivity extends AppCompatActivity{
 
         if(BluetoothActivity.c_Pulsation.size() == 50){
             BluetoothActivity.c_Pulsation.clear();
+            BluetoothActivity.c_Pulsation.add(CalibrationActivity.c_pulsation_m);
         }
         if(BluetoothActivity.c_Temperature.size() == 50){
             BluetoothActivity.c_Temperature.clear();
+            BluetoothActivity.c_Temperature.add(CalibrationActivity.c_temperature_m);
         }
         if(BluetoothActivity.c_Hygrometrie.size() == 50){
             BluetoothActivity.c_Hygrometrie.clear();
+            BluetoothActivity.c_Hygrometrie.add(CalibrationActivity.c_hygrometrie_m);
         }
     }
 
