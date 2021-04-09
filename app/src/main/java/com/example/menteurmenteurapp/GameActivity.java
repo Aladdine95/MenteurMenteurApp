@@ -140,6 +140,9 @@ public class GameActivity extends AppCompatActivity{
 
     @SuppressLint("SetTextI18n")
     private void mensongeTraitement() {
+        tsView = findViewById(R.id.temps1View);
+        ledView = findViewById(R.id.ledView);
+        true_or_falseView = findViewById(R.id.trueorfalseView);
         if((derniereValeurCapteur(BluetoothActivity.c_Temperature) < CalibrationActivity.c_temperature_m - ECART_TEMPERATURE
                 && derniereValeurCapteur(BluetoothActivity.c_Temperature) > CalibrationActivity.c_temperature_m + ECART_TEMPERATURE)
         && (derniereValeurCapteur(BluetoothActivity.c_Pulsation) < CalibrationActivity.c_pulsation_m - ECART_PULSATION
@@ -158,6 +161,7 @@ public class GameActivity extends AppCompatActivity{
             }
         }
         else{
+
             true_or_falseView.setText("Stand by...");
             true_or_falseView.setBackgroundColor(Color.GREEN);
             ledView.setBackgroundColor(Color.GREEN);

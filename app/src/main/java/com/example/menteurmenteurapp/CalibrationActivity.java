@@ -145,9 +145,12 @@ public class CalibrationActivity extends AppCompatActivity {
                 }
 
                 runOnUiThread(() -> {
-                    temperatureVariantes.setText(BluetoothActivity.c_Temperature.get(BluetoothActivity.c_Temperature.size() - 1).toString() + " °C");
-                    hygrometrieVariantes.setText(BluetoothActivity.c_Hygrometrie.get(BluetoothActivity.c_Hygrometrie.size() - 1).toString() + " g/m3");
-                    pulsationVariantes.setText(BluetoothActivity.c_Pulsation.get(BluetoothActivity.c_Pulsation.size() - 1).toString() + "BPM");
+                   if(BluetoothActivity.c_Temperature.size()>1 )
+                        temperatureVariantes.setText(BluetoothActivity.c_Temperature.get(BluetoothActivity.c_Temperature.size() - 1).toString() + " °C");
+                   if(BluetoothActivity.c_Hygrometrie.size()>1)
+                        hygrometrieVariantes.setText(BluetoothActivity.c_Hygrometrie.get(BluetoothActivity.c_Hygrometrie.size() - 1).toString() + " g/m3");
+                   if(BluetoothActivity.c_Pulsation.size()>1)
+                        pulsationVariantes.setText(BluetoothActivity.c_Pulsation.get(BluetoothActivity.c_Pulsation.size() - 1).toString() + "BPM");
                 });
 
                 if(calibrationDone){
