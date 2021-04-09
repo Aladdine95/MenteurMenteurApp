@@ -55,13 +55,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         startButton.setOnClickListener(v -> {
-            if(!isConnectedDevice) {
+            /*if(!isConnectedDevice) {
                 Toast.makeText(getApplicationContext(), "Veuillez connecter votre détecteur de mensonge avant de commencer!", Toast.LENGTH_LONG).show();
             }
-            else{
+            else{*/
                 Intent calibrationActivity = new Intent(MainActivity.this, CalibrationActivity.class);
                 startActivityForResult(calibrationActivity, CALIBRATION_ACTIVITY_REQUEST_CODE);
-            }
+            /*}*/
         });
 
         creditsButton.setOnClickListener(v -> new AlertDialog.Builder(v.getContext())

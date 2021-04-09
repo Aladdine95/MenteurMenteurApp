@@ -8,6 +8,8 @@ import android.bluetooth.BluetoothSocket;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
@@ -24,7 +26,8 @@ import static android.content.ContentValues.TAG;
 
 public class GameActivity extends AppCompatActivity{
     private LineChart mpLineChart = null;
-
+    private Thread thread;
+    private Button mpRefreshButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,12 +50,12 @@ public class GameActivity extends AppCompatActivity{
         mpLineChart.setData(data);
         mpLineChart.invalidate();
         mpLineChart.setBackgroundColor(Color.WHITE);
-
-        RefreshCharts rCharts = new GameActivity.RefreshCharts(mpLineChart);
-        rCharts.run();
+        mpRefreshButton = findViewById(R.id.menuprincipalButton);
+        mpRefreshButton.setOnClickListener(v -> updateValuesGraph(mpLineChart));
+        startRefresh();
     }
 
-    private static List<Entry> dataValuesPulsation(){
+    public List<Entry> dataValuesPulsation(){
         List<Entry> dataValues = new ArrayList<>();
         int index = 0;
         for(Float element: BluetoothActivity.c_Pulsation){
@@ -62,7 +65,7 @@ public class GameActivity extends AppCompatActivity{
         return dataValues;
     }
 
-    private static List<Entry> dataValuesTemperatures(){
+    public List<Entry> dataValuesTemperatures(){
         List<Entry> dataValues = new ArrayList<>();
         int index = 0;
         for(Float element: BluetoothActivity.c_Temperature){
@@ -72,7 +75,7 @@ public class GameActivity extends AppCompatActivity{
         return dataValues;
     }
 
-    private static List<Entry> dataValuesHygrometrie(){
+    public List<Entry> dataValuesHygrometrie(){
         List<Entry> dataValues = new ArrayList<>();
         int index = 0;
         for(Float element: BluetoothActivity.c_Hygrometrie){
@@ -82,7 +85,7 @@ public class GameActivity extends AppCompatActivity{
         return dataValues;
     }
 
-    public static void updateValuesGraph(LineChart mpLineChart){
+    public void updateValuesGraph(LineChart mpLineChart){
         LineDataSet lineDataSetP = new LineDataSet(dataValuesPulsation(), "BPM");
         lineDataSetP.setColor(Color.BLUE);
         lineDataSetP.setCircleColor(Color.BLUE);
@@ -97,19 +100,37 @@ public class GameActivity extends AppCompatActivity{
         dataSets.add(lineDataSetT);
         dataSets.add(lineDataSetH);
         LineData data = new LineData(dataSets);
+        data.notifyDataChanged();
+        mpLineChart.setData(data);
+        mpLineChart.notifyDataSetChanged();
         mpLineChart.setData(data);
         mpLineChart.invalidate();
     }
 
-    private static class RefreshCharts extends Thread{
-        private LineChart mpLineChart = null;
-
-        public RefreshCharts(LineChart mpLineChart){
-            this.mpLineChart = mpLineChart;
-        }
-
-        public void run(){
-            updateValuesGraph(mpLineChart);
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(thread != null){
+            thread.interrupt();
         }
     }
+
+    private void startRefresh(){
+        if(thread != null){
+            thread.interrupt();
+        }
+
+        thread = new Thread(() -> {
+            while(true){
+                updateValuesGraph(mpLineChart);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.start();
+    }
+
 }
