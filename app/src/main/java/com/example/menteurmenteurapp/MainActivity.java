@@ -13,6 +13,10 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+/**
+ * MainActivity est l'activité principale de l'application, elle permet d'accéder à l'activité de bluetooth
+ * et de montrer à l'utilisateur si il est bien connecté au bluetooth ainsi que le bon fonctionnement des capteurs.
+ */
 public class MainActivity extends AppCompatActivity {
 
     private Button bluetoothDevices;
@@ -25,11 +29,13 @@ public class MainActivity extends AppCompatActivity {
     public static final int CALIBRATION_ACTIVITY_REQUEST_CODE = 30;
     public static final int BLUETOOTH_ACTIVITY_REQUEST_CODE = 31;
     public static BluetoothDevice selectedDevice = null;
+    @SuppressLint("StaticFieldLeak")
+    public static TextView temperatureVariantes, hygrometrieVariantes, pulsationVariantes;
 
-    public static TextView temperatureVariantes;
-    public static TextView hygrometrieVariantes;
-    public static TextView pulsationVariantes;
-
+    /**
+     * Méthode appelée lors de la création de l'activité.
+     * @param savedInstanceState
+     */
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +59,11 @@ public class MainActivity extends AppCompatActivity {
             bluetoothOK.setText("Connecté");
             bluetoothOK.setTextColor(Color.GREEN);
         }
+        else{
+            isConnectedDevice = false;
+            bluetoothOK.setText("Non connecté");
+            bluetoothOK.setTextColor(Color.RED);
+        }
 
         bluetoothModule = BluetoothAdapter.getDefaultAdapter();
 
@@ -67,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //Au moment du clic sur le bouton de crédits, affichage des auteurs, remerciements et du sujet du programme
         creditsButton.setOnClickListener(v -> new AlertDialog.Builder(v.getContext())
                 .setTitle("Crédits")
                 .setMessage("Créateurs:\n\n" +
@@ -74,7 +86,8 @@ public class MainActivity extends AppCompatActivity {
                         "Quitterie Pilon\n" +
                         "Enzo Kalinowski\n" +
                         "Thomas Hec\n\n" +
-                        "Projet d'intégration : Objets connectés")
+                        "Nos remerciements à notre enseignante encadrante : M. Dang Ngoc\n\n" +
+                        "Projet d'intégration : Objets connectés\n")
                 .setIcon(android.R.drawable.ic_dialog_info)
                 .show());
 
@@ -82,9 +95,18 @@ public class MainActivity extends AppCompatActivity {
         connectBluetooth();
     }
 
+    /**
+     * onActivityResult permet, lors du retour sur l'activité en question, d'executer des instructions
+     * en conséquence.
+     * @param requestCode int
+     * @param resultCode int
+     * @param intent Intent
+     */
     @SuppressLint("SetTextI18n")
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
+        //Permet de vérifier si on acquérit bien des données à partir des capteurs
+        //si c'est le cas, on affiche que le bluetooth est connecté, sinon on indique qu'il ne l'est pas
         if(BluetoothActivity.splitted_buffer != null){
             isConnectedDevice = true;
             bluetoothOK.setText("Connecté");
@@ -97,6 +119,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Cette méthode nous permet de vérifier si le bluetooth est :
+     *  => Supporté par le téléphone (si ce n'est pas le cas, toast expliquant que l'appareil n'a pas le bluetooth)
+     *  => Désactivé (=> demande donc l'activation)
+     *  => Activé mais non connecté (demande donc la connexion)
+     *  => Activé et connecté (informe que tout est ok)
+     */
     public void connectBluetooth() {
         bluetoothModule = BluetoothAdapter.getDefaultAdapter();
 

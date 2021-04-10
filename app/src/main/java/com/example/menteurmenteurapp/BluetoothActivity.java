@@ -28,6 +28,10 @@ import java.util.Set;
 import java.util.UUID;
 import static android.content.ContentValues.TAG;
 
+/**
+ * Cette activité défini le comportement du bluetooth (recherche des appareils, connexion [création de socket],
+ * ainsi que traitement sur les données reçues).
+ */
 public class BluetoothActivity extends AppCompatActivity {
     private BluetoothAdapter bluetoothAdapter = null;
     private ListView lview = null;
@@ -41,6 +45,11 @@ public class BluetoothActivity extends AppCompatActivity {
     public static List<Float> c_Temperature;
     public static List<Float> c_Hygrometrie;
     public static String[] splitted_buffer;
+
+    /**
+     * Cette méthode est appelée lors de la création de l'activité de bluetooth.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +61,7 @@ public class BluetoothActivity extends AppCompatActivity {
         pairedDevicesList();
         menuPrincipalButton.setOnClickListener(v -> finish());
 
+        //Définition des conditions et instructions à executer lors du clic sur le bouton de connexion.
         connectButton.setOnClickListener(v -> {
             if(MainActivity.selectedDevice == null){
                 Toast.makeText(getApplicationContext(), "Aucun appareil n'a été sélectionné.", Toast.LENGTH_LONG).show();
@@ -71,19 +81,25 @@ public class BluetoothActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     *
+     *  Cette méthode permet de nous lister la liste des appareils appairés au téléphone (à faire au préalable).
+     *  Elle est utile lors de la connexion en bluetooth car elle permet de lister l'appareil et de s'y connecter.
+     */
     private void pairedDevicesList(){
         lview = findViewById(R.id.appareilBluetoothList);
-        Set<BluetoothDevice> pairedDeviceSet = bluetoothAdapter.getBondedDevices();
+        Set<BluetoothDevice> pairedDeviceSet = bluetoothAdapter.getBondedDevices(); //Récupération des appareils appairés
         map = new HashMap<>();
         List<String> list = new ArrayList<>();
 
         if (pairedDeviceSet.size() > 0) {
-            for (BluetoothDevice pairedDevice : pairedDeviceSet) {
-                map.put(pairedDevice.getAddress(), pairedDevice); //Get the device's name and the address
+            for (BluetoothDevice pairedDevice : pairedDeviceSet) { //On liste tout les appareil appareillé et on les affiche sous forme d'éléments de ListView
+                map.put(pairedDevice.getAddress(), pairedDevice); //On récupère l'adresse et le nom de l'appareil
                 list.add(pairedDevice.getName() + "\n" + pairedDevice.getAddress());
             }
             final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
             lview.setAdapter(adapter);
+            //Permet de "sélectionner" l'appareil auquel on souhaite se connecter en récupérant l'adresse de l'appareil ainsi que son nom
             lview.setOnItemClickListener((parent, view, position, id) -> {
                 String info = ((TextView) view).getText().toString();
                 String address = info.substring(info.length() - 17);
@@ -94,36 +110,38 @@ public class BluetoothActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), info, Toast.LENGTH_SHORT).show();
             });
         }
-        else {
+        else { //Cas où aucun appareil bluetooth n'est apparaillé au bluetooth du téléphone
             Toast.makeText(getApplicationContext(), "Aucun appareil bluetooth pairée n'a été trouvé.", Toast.LENGTH_LONG).show();
         }
     }
 
-    public static boolean isBluetoothConnected(){
-        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        return mBluetoothAdapter != null && mBluetoothAdapter.isEnabled()
-                && mBluetoothAdapter.getProfileConnectionState(BluetoothHeadset.HEADSET) == BluetoothHeadset.STATE_CONNECTED ;
-    }
-
-    /*  La classe CreateConnexion étend la classe Thread et nous permettra
+    /**
+     *  La classe CreateConnexion étend la classe Thread et nous permettra
      *  d'effectuer la connexion avec les appareils déjà appairés avec le
      *  téléphone pour permettre l'échange de données par l'intermédiaire de
      *  la connexion bluetooth.
      */
     private static class CreateConnection extends Thread{
 
+        /**
+         * Permet de créer la connexion bluetooth entre le téléphone et le module bluetooth de la carte.
+         * @param bluetoothAdapter
+         * @param address
+         */
         public CreateConnection(BluetoothAdapter bluetoothAdapter, String address){
             BluetoothSocket bluetoothSocketTMP = null;
             BluetoothDevice bluetoothDevice = bluetoothAdapter.getRemoteDevice(address);
             UUID mLieDeviceUUID = MainActivity.selectedDevice.getUuids()[0].getUuid();
 
             try{
+                //Création du socket bluetooth avec grâce à l'UUID de l'appareil auquel on souhaite se connecter
+                //Stockage dans une variable temporaire pour éviter les erreurs dans les cas d'exceptions
                 bluetoothSocketTMP = bluetoothDevice.createInsecureRfcommSocketToServiceRecord(mLieDeviceUUID);
             }
             catch(IOException e){
                 Log.e(TAG, "Échec de la création du socket de connexion (méthode socket()).", e);
             }
-
+            //On stocke la socket que l'on a crée auparavant de façon permanente
             bluetoothSocket = bluetoothSocketTMP;
         }
 
@@ -153,7 +171,7 @@ public class BluetoothActivity extends AppCompatActivity {
         }
     }
 
-    /*
+    /**
      *  La classe ConnectedThread étend la classe Thread et nous permettra
      *  de récupérer les données de nos capteurs pour traitement, grâce à
      *  la boucle permanente qui tournera en même temps des autres processus
@@ -165,14 +183,19 @@ public class BluetoothActivity extends AppCompatActivity {
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
 
+        /**
+         * Cette classe permet de définir les méthodes qui vont définir le comportement après la connexion en bluetooth.
+         * @param socket
+         */
         public ConnectedThread(BluetoothSocket socket) {
             bluetoothSocket = socket;
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
 
-            /*  On récupère l'InputStream et l'OutputStream grâce à des objets temporaires
-                pour permettre de les rendre finaux que si aucune exception ne s'est déclenchée.
-                Des variables permanentes récupèront ensuite l'état actuel des streamers.
+            /**
+             *  On récupère l'InputStream et l'OutputStream grâce à des objets temporaires
+             *   pour permettre de les rendre finaux que si aucune exception ne s'est déclenchée.
+             *   Des variables permanentes récupèront ensuite l'état actuel des streamers.
              */
             try {
                 tmpIn = socket.getInputStream();
@@ -185,16 +208,7 @@ public class BluetoothActivity extends AppCompatActivity {
             mmOutStream = tmpOut;
         }
 
-        /*
-         *    Ajoute un flottant à un tableau donné.
-         *    @param "int"
-         *    @param "float[]"
-         *    @param "float"
-         *
-         *    @return "float[]"
-         */
-
-        /*
+        /**
          * Méthode run qui va constamment attendre les données envoyés par le module bluetooth arduino
          * grâce à un Thread qui va constamment tourner en même temps que le reste de l'application.
          *     On lit ce que l'InputStream récupère depuis la carte Arduino jusqu'à ce que le
@@ -218,17 +232,23 @@ public class BluetoothActivity extends AppCompatActivity {
                     if (buffer[bytes] == '\n'){
                         readMessage = new String(buffer,0,bytes);
                         splitted_buffer = readMessage.split(":"); //Le tableau contenant nos données séparées grâce au séparateur ":"
+                        //On affiche au niveau des logs les données que l'on a acquis a des fins de développements
                         Log.e(ts.toString(), "MenteurAEQT: C_Pulsation = " + splitted_buffer[1] + " - C_Température = "
                                 + splitted_buffer[2] + " - C_Hygrométrie = " + splitted_buffer[3] ); //Écriture dans la console du message reçu par le arduino.
 
+                        //On change le texte à afficher à l'utilisateur au niveau des capteurs (c.f activity_main.xml => capteurs)
                         MainActivity.pulsationOK.setText(splitted_buffer[1] + " BPM");
                         MainActivity.temperatureOK.setText(splitted_buffer[2] + " °C");
                         MainActivity.hygrometrieOK.setText(splitted_buffer[3] + " g/m3");
 
+                        //On ajoute aux différents tableaux les valeurs correspondants au capteur de pulsation, température, hygrométrie respectivement
                         c_Pulsation.add(Float.parseFloat(splitted_buffer[1]));
                         c_Temperature.add(Float.parseFloat(splitted_buffer[2]));
                         c_Hygrometrie.add(Float.parseFloat(splitted_buffer[3]));
 
+                        //On change la couleur du texte en fonction de l'acquisition des données des capteurs
+                        //Si c'est à 0 => Couleur du texte rouge (permet de montrer que le capteur est indisponible)
+                        //sinon => Couleur du texte vert
                         if(Float.parseFloat(splitted_buffer[1]) <= (float) 0.0)
                             MainActivity.pulsationOK.setTextColor(Color.RED);
                         else
@@ -256,9 +276,10 @@ public class BluetoothActivity extends AppCompatActivity {
             }
         }
 
-        /*
+        /**
         *  Cette méthode permet l'envoie d'un buffer de données à la carte arduino
-        *  On ne l'utilise pas.
+        *  On ne l'utilise pas mais elle peut s'avérer très utile dans le cas d'échanges.
+         * @param input String
         */
         public void write(String input) {
             byte[] bytes = input.getBytes(); //converts entered String into bytes
@@ -269,9 +290,11 @@ public class BluetoothActivity extends AppCompatActivity {
             }
         }
 
-        /* Cette méthode permet de mettre fin à la connexion bluetooth depuis l'activité principale
-        *  On ne l'utilise pas.
-        * */
+        /**
+         * Cette méthode permet de mettre fin à la connexion bluetooth depuis l'activité principale
+         * On ne l'utilise pas, mais elle peut s'avérer utile lorsqu'on veut forcer la fermeture du socket
+         * bluetooth.
+         * */
         public void cancel() {
             try {
                 bluetoothSocket.close();

@@ -17,6 +17,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * CalibrationActivity est l'activité de calibration.
+ * On y définit les méthodes et actions pour la calibration de notre simulation.
+ */
 public class CalibrationActivity extends AppCompatActivity {
     private ArrayList<String> questionList;
     private Iterator<String> iteratorQuestions;
@@ -25,13 +29,17 @@ public class CalibrationActivity extends AppCompatActivity {
     private int indexQuestion;
     private boolean startQuestion, calibrationStart, calibrationDone, cleared;
     private Thread thread;
-    public static TextView temperatureVariantes;
-    public static TextView hygrometrieVariantes;
-    public static TextView pulsationVariantes;
+    @SuppressLint("StaticFieldLeak")
+    public static TextView temperatureVariantes, hygrometrieVariantes, pulsationVariantes;
 
     public static float c_pulsation_m, c_temperature_m, c_hygrometrie_m;
     public static final int GAME_ACTIVITY_REQUEST_CODE = 35;
 
+    /**
+     * Méthode appelée dés le lancement de l'activité définissant le layout et les actions possibles
+     * pour la création de l'activité.
+     * @param savedInstanceState
+     */
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +100,20 @@ public class CalibrationActivity extends AppCompatActivity {
         retourMenuButton.setOnClickListener(v -> finish());
     }
 
+    /**
+     * On récupère les questions depuis une liste de questions définies dans un fichier qui sera lu ligne par ligne.
+     * Format de la question dans le fichier (exemple) :
+     * Quel est ton prénom?
+     * Quel age a-tu?
+     * Quel est la couleur de tes cheveux?
+     * Quel est ton plat préféré?
+     * Combien mesures-tu?
+     * Quelle est la couleur de ton pentalon?
+     * Es-tu à l'aise?
+     *
+     * @param inputStream
+     * @return
+     */
     public ArrayList<String> getQuestionsFromFile(InputStream inputStream){
         ArrayList<String> questionsList = new ArrayList<>();
         try{
@@ -112,20 +134,27 @@ public class CalibrationActivity extends AppCompatActivity {
         return questionsList;
     }
 
+    /**
+     * Cette méthode est appelée lorsque l'application est en arrière plan.
+     */
     @Override
     protected void onPause() {
         super.onPause();
         if(thread != null){
+            //Interruption du thread lorsque le thread est en cours de fonctionnement
             thread.interrupt();
         }
     }
 
+    /**
+     * Méthode définissant le comportement de la calibration.
+     */
     @SuppressLint("SetTextI18n")
     private void calibration(){
         if(thread != null){
             thread.interrupt();
         }
-
+        //Ce Thread nous permet de récupérer les données envoyées par le module bluetooth de façon continuelle (tant que le thread est started).
         thread = new Thread(() -> {
             while(calibrationStart){
 
@@ -134,7 +163,8 @@ public class CalibrationActivity extends AppCompatActivity {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-
+                //On clear une première fois les listes contenant les données précédentes des capteurs de pulsation, température et hygrométrie
+                //afin d'effectuer nos traitements sur le une base nouvelle.
                 if(calibrationStart && !cleared
                         && BluetoothActivity.c_Pulsation != null && BluetoothActivity.c_Temperature != null
                 && BluetoothActivity.c_Hygrometrie != null){
@@ -144,6 +174,7 @@ public class CalibrationActivity extends AppCompatActivity {
                     BluetoothActivity.c_Hygrometrie.clear();
                 }
 
+                //On affiche à l'utilisateur les valeurs des capteurs pour lui montrer quelles sont les constantes vitales du sujet.
                 runOnUiThread(() -> {
                    if(BluetoothActivity.c_Temperature.size()>1 )
                         temperatureVariantes.setText(BluetoothActivity.c_Temperature.get(BluetoothActivity.c_Temperature.size() - 1).toString() + " °C");
@@ -153,6 +184,8 @@ public class CalibrationActivity extends AppCompatActivity {
                         pulsationVariantes.setText(BluetoothActivity.c_Pulsation.get(BluetoothActivity.c_Pulsation.size() - 1).toString() + "BPM");
                 });
 
+                //Une fois la calibration effectuée, on calcul la moyenne grâce aux données reçues puis on les sauvegarde dans des variables
+                //qu'on utilisera plus tard
                 if(calibrationDone){
                     c_pulsation_m = calculMoyenne(BluetoothActivity.c_Pulsation);
                     c_temperature_m = calculMoyenne(BluetoothActivity.c_Temperature);
@@ -172,6 +205,11 @@ public class CalibrationActivity extends AppCompatActivity {
         thread.start();
     }
 
+    /**
+     * Effectue le calcul de la moyenne lors de la calibration (à partir des données stockée dans une liste donnée).
+     * @param arrayList
+     * @return float
+     */
     private float calculMoyenne(List<Float> arrayList){
         int index = 0;
         float resultat = 0;
