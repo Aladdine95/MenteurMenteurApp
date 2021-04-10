@@ -16,18 +16,29 @@ import android.widget.Toast;
 /**
  * MainActivity est l'activité principale de l'application, elle permet d'accéder à l'activité de bluetooth
  * et de montrer à l'utilisateur si il est bien connecté au bluetooth ainsi que le bon fonctionnement des capteurs.
+ * @author Équipe détecteur de mensonge
+ * @version 0.9
  */
 public class MainActivity extends AppCompatActivity {
 
     private Button bluetoothDevices;
     @SuppressLint("StaticFieldLeak")
     public static TextView bluetoothOK, temperatureOK, hygrometrieOK, pulsationOK;
+    /**
+     * bluetoothModule contient les informations de l'appareil bluetooth du smartphone.
+     */
     private BluetoothAdapter bluetoothModule;
+    /**
+     * boolean vérifiant si un appareil a bien été connecté au bluetooth.
+     */
     private boolean isConnectedDevice = false;
 
     private static final int BT_ENABLE_REQUEST = 1;
     public static final int CALIBRATION_ACTIVITY_REQUEST_CODE = 30;
     public static final int BLUETOOTH_ACTIVITY_REQUEST_CODE = 31;
+    /**
+     * selectedDevice est l'appareil qui aura été selectionné par l'utilisateur pour la connexion.
+     */
     public static BluetoothDevice selectedDevice = null;
     @SuppressLint("StaticFieldLeak")
     public static TextView temperatureVariantes, hygrometrieVariantes, pulsationVariantes;

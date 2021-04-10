@@ -31,19 +31,55 @@ import static android.content.ContentValues.TAG;
 /**
  * Cette activité défini le comportement du bluetooth (recherche des appareils, connexion [création de socket],
  * ainsi que traitement sur les données reçues).
+ * @author Équipe détecteur de mensonge
+ * @version 0.9
  */
 public class BluetoothActivity extends AppCompatActivity {
+    /**
+     * Permet de récupérer le BluetoothAdapter, c'est-à-dire les informations concernant le module bluetooth du smartphone.
+     */
     private BluetoothAdapter bluetoothAdapter = null;
+    /**
+     * La liste contenant les différents appareils bluetooth appareillées.
+     */
     private ListView lview = null;
+    /**
+     * La liste qui sera donnée au ListView "lview" pour affichage des appareils appareillées.
+     */
     private Map<String, BluetoothDevice> map = null;
 
+    /**
+     * Permet de stocker la socket bluetooth qui sera crée.
+     */
     public static BluetoothSocket bluetoothSocket = null;
+    /**
+     * Instancie le thread de connexion qui va continuellement récupérer les valeurs envoyées par le bluetooth
+     */
     public static ConnectedThread connectedThread;
+    /**
+     * boolean permettant de vérifier si la connexion s'est bien déroulée ou non.
+     */
     public static boolean connectionWentWell = false;
+    /**
+     * Taille du buffer associé, une taille de 36 suffirait mais 150 pour être plus large et éviter les dépassement de buffer.
+     */
     private final static int BUFFER_SIZE = 150;
+    /**
+     * Liste ordonnée contenant les valeurs récupérées par le capteur de pulsation.
+     */
     public static List<Float> c_Pulsation;
+    /**
+     * Liste ordonnée contenant les valeurs récupérées par le capteur de température.
+     */
     public static List<Float> c_Temperature;
+    /**
+     * Liste ordonnée contenant les valeurs récupérées par le capteur d'hygrométrie.
+     */
     public static List<Float> c_Hygrometrie;
+    /**
+     * Tableau contenant les valeurs fraîchement envoyées par le module bluetooth à notre smartphone.
+     * Formatée tel que : "MenteurAETQ:PP:TT:HH" avec PP = Pulsation, TT = Température, HH = Hygrométrie.
+     */
     public static String[] splitted_buffer;
 
     /**

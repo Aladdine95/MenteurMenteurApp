@@ -20,18 +20,34 @@ import java.util.List;
 /**
  * CalibrationActivity est l'activité de calibration.
  * On y définit les méthodes et actions pour la calibration de notre simulation.
+ * @author Équipe détecteur de mensonge
+ * @version 0.9
  */
 public class CalibrationActivity extends AppCompatActivity {
+    /**
+     * Collection contenant les questions qui seront posées au sujet (Pas optimal, utiliser une liste (c.f classe List) pour éviter l'itérator).
+     */
     private ArrayList<String> questionList;
+    /**
+     * Permet d'itérer à travers notre ArrayList de questions.
+     */
     private Iterator<String> iteratorQuestions;
     private Button suivantButton;
     private TextView questionsView;
+    /**
+     * indexQuestion est le numéro de la question actuelle posée à l'utilisateur.
+     */
     private int indexQuestion;
     private boolean startQuestion, calibrationStart, calibrationDone, cleared;
+    /**
+     * Thread permettant l'acquisition des données reçues par notre capteur bluetooth, ainsi que l'affichage en temps-réel sur l'application.
+     */
     private Thread thread;
     @SuppressLint("StaticFieldLeak")
     public static TextView temperatureVariantes, hygrometrieVariantes, pulsationVariantes;
-
+    /**
+     * Ces flottants contiendront les valeurs moyennes du capteur de pulsation, température et hygrométrie.
+     */
     public static float c_pulsation_m, c_temperature_m, c_hygrometrie_m;
     public static final int GAME_ACTIVITY_REQUEST_CODE = 35;
 

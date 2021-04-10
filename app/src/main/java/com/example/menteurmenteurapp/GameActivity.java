@@ -20,13 +20,31 @@ import java.util.List;
  * GameActivity est l'activité de la simulation, elle est executée après l'activité de calibration.
  * On y définit les méthodes et actions pour l'interprétation des mensonges ainsi que l'affichage aux
  * utilisateurs.
+ * @author Équipe détecteur de mensonge
+ * @version 0.9
  */
 public class GameActivity extends AppCompatActivity{
     private LineChart mpLineChart = null;
+
+    /**
+     * Définition de l'écart autorisé pour la pulsation, permettant de définir l'une des composante de l'intervalle de vérité.
+     */
     private final static int ECART_PULSATION = 10;
+    /**
+     * Définition de l'écart autorisé pour la température, permettant de définir l'une des composante de l'intervalle de vérité.
+     */
     private final static int ECART_TEMPERATURE = 5;
+    /**
+     * Définition de l'écart autorisé pour l'hygrométrie, permettant de définir l'une des composante de l'intervalle de vérité.
+     */
     private final static int ECART_HYGROMETRIE = 2;
+    /**
+     * TextView pour le layout, permettra d'afficher le résultat de l'interprétation de nos valeurs ("MENTEUR !" ou "VÉRITÉ !"
+     */
     private TextView true_or_falseView;
+    /**
+     * Thread permettant l'actualisation du graphique, des valeurs ainsi que de l'affchage du TextView "true_or_falseView".
+     */
     private Thread thread;
 
     @Override
