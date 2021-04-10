@@ -81,9 +81,11 @@ public class GameActivity extends AppCompatActivity{
     public List<Entry> dataValuesPulsation(){
         List<Entry> dataValues = new ArrayList<>();
         int index = 0;
-        for(Float element: BluetoothActivity.c_Pulsation){
-            dataValues.add(new Entry(index, element));
-            index++;
+        if(BluetoothActivity.c_Pulsation!=null) {
+            for (Float element : BluetoothActivity.c_Pulsation) {
+                dataValues.add(new Entry(index, element));
+                index++;
+            }
         }
         return dataValues;
     }
@@ -95,9 +97,11 @@ public class GameActivity extends AppCompatActivity{
     public List<Entry> dataValuesTemperatures(){
         List<Entry> dataValues = new ArrayList<>();
         int index = 0;
-        for(Float element: BluetoothActivity.c_Temperature){
-            dataValues.add(new Entry(index, element));
-            index++;
+        if(BluetoothActivity.c_Temperature!=null) {
+            for (Float element : BluetoothActivity.c_Temperature) {
+                dataValues.add(new Entry(index, element));
+                index++;
+            }
         }
         return dataValues;
     }
@@ -109,9 +113,11 @@ public class GameActivity extends AppCompatActivity{
     public List<Entry> dataValuesHygrometrie(){
         List<Entry> dataValues = new ArrayList<>();
         int index = 0;
-        for(Float element: BluetoothActivity.c_Hygrometrie){
-            dataValues.add(new Entry(index, element));
-            index++;
+        if(BluetoothActivity.c_Hygrometrie!=null) {
+            for (Float element : BluetoothActivity.c_Hygrometrie) {
+                dataValues.add(new Entry(index, element));
+                index++;
+            }
         }
         return dataValues;
     }
